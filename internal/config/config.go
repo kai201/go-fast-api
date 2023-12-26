@@ -1,6 +1,6 @@
 package config
 
-import "github.com/fast-api/pkg/conf"
+import "github.com/fast/pkg/conf"
 
 var Instance *Config
 
@@ -16,7 +16,7 @@ func Show(hiddenFields ...string) string {
 type Config struct {
 	Server Server `yaml:"server" json:"server"`
 	HTTP   HTTP   `yaml:"http" json:"http"`
-	Jaeger Jaeger `yaml:"jaeger" json:"jaeger"`
+	OTEL   OTEL   `yaml:"otel" json:"otel"`
 	Logger Logger `yaml:"logger" json:"logger"`
 	Mysql  Mysql  `yaml:"mysql" json:"mysql"`
 	Redis  Redis  `yaml:"redis" json:"redis"`
@@ -38,9 +38,9 @@ type Server struct {
 	Version               string  `yaml:"version" json:"version"`
 }
 
-type Jaeger struct {
-	AgentHost string `yaml:"agentHost" json:"agentHost"`
-	AgentPort int    `yaml:"agentPort" json:"agentPort"`
+type OTEL struct {
+	Host string `yaml:"host" json:"host"`
+	Port int    `yaml:"port" json:"port"`
 }
 
 type Mysql struct {
