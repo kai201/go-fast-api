@@ -23,37 +23,20 @@ var configFile string
 func main() {
 	flag.StringVar(&configFile, "c", "config.yml", "configuration file")
 	flag.Parse()
-	err := config.Init(configFile)
-	if err != nil {
-		panic("init config error: " + err.Error())
-	}
+	initializeConfiguration()
+	initializeLogger()
 
-	// initializing log
-	_, err = logger.Init(
-		logger.WithLevel(config.Instance.Logger.Level),
-		logger.WithFormat(config.Instance.Logger.Format),
-		logger.WithSave(config.Instance.Logger.IsSave),
-	)
-
-	if err != nil {
-		panic(err)
-	}
-
-	if config.Instance.Server.EnableStat {
-		stat.Init(
-			stat.WithLog(logger.Get()),
-			stat.WithAlarm(), // invalid if it is windows, the default threshold for cpu and memory is 0.8, you can modify them
-		)
-	}
-	// log := logger.Get()
 	router := routers.NewRouter()
-	address := net.JoinHostPort("0.0.0.0", strconv.Itoa(8080))
+
+	conf := config.Instance
+	address := net.JoinHostPort(conf.HTTP.Host, strconv.Itoa(conf.HTTP.Port))
 	server := http.Server{Addr: address, Handler: router}
+
+	logger.Infof("Http Server Start Address http://%s", address) //nolint
 	go func() {
-		err = server.ListenAndServe()
+		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			// log.Error("api run failed", err, "address", address)
-			logger.Errorf("api run failed", err, "address", address)
+			logger.Errorf("api run failed %s %s %s", err.Error(), "address", address) //nolint
 			os.Exit(1)
 		}
 	}()
@@ -67,7 +50,37 @@ func main() {
 
 	// graceful shutdown operation.
 	if err := server.Shutdown(ctx); err != nil {
-		// log.ZError(context.Background(), "failed to api-server shutdown", err)
+		logger.Errorf("failed to api-server shutdown %s", err.Error())
 		fmt.Println(err.Error())
+	}
+}
+
+func initializeConfiguration() {
+	err := config.Init(configFile)
+	if err != nil {
+		panic("init config error: " + err.Error())
+	}
+
+	conf := config.Instance
+
+	if conf.Server.EnableStat {
+		stat.Init(
+			stat.WithLog(logger.Get()),
+			stat.WithAlarm(), // invalid if it is windows, the default threshold for cpu and memory is 0.8, you can modify them
+		)
+	}
+}
+
+func initializeLogger() {
+	conf := config.Instance
+	// initializing log
+	_, err := logger.Init(
+		logger.WithLevel(conf.Logger.Level),
+		logger.WithFormat(conf.Logger.Format),
+		logger.WithSave(conf.Logger.IsSave),
+	)
+
+	if err != nil {
+		panic(err)
 	}
 }

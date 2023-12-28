@@ -13,6 +13,8 @@ import (
 	"github.com/gin-gonic/gin/binding"
 )
 
+var routerFns []func(r *gin.RouterGroup)
+
 // NewRouter create a new router
 func NewRouter() *gin.Engine {
 	r := gin.New()
@@ -54,6 +56,11 @@ func NewRouter() *gin.Engine {
 
 	r.GET("/ping", Ping)
 
+	rg := r.Group("api")
+
+	for _, fn := range routerFns {
+		fn(rg)
+	}
 	return r
 }
 

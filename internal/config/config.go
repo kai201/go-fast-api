@@ -31,7 +31,6 @@ type Server struct {
 	EnableStat            bool    `yaml:"enableStat" json:"enableStat"`
 	EnableTrace           bool    `yaml:"enableTrace" json:"enableTrace"`
 	Env                   string  `yaml:"env" json:"env"`
-	Host                  string  `yaml:"host" json:"host"`
 	Name                  string  `yaml:"name" json:"name"`
 	RegistryDiscoveryType string  `yaml:"registryDiscoveryType" json:"registryDiscoveryType"`
 	TracingSamplingRate   float64 `yaml:"tracingSamplingRate" json:"tracingSamplingRate"`
@@ -68,7 +67,8 @@ type Logger struct {
 }
 
 type HTTP struct {
-	Port         int `yaml:"port" json:"port"`
-	ReadTimeout  int `yaml:"readTimeout" json:"readTimeout"`
-	WriteTimeout int `yaml:"writeTimeout" json:"writeTimeout"`
+	Host         string `yaml:"host" json:"host"`
+	Port         int    `yaml:"port" json:"port"`
+	ReadTimeout  int    `yaml:"readTimeout" json:"readTimeout"`
+	WriteTimeout int    `yaml:"writeTimeout" json:"writeTimeout"`
 }
