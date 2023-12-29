@@ -17,6 +17,7 @@ func useSysRouter(group *gin.RouterGroup) {
 	group.GET("/list", List)
 
 }
-func List(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"2": 1})
+func List(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, gin.H{"2": 1})
+
 }

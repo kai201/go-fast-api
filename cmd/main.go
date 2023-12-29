@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fast/internal/accessor"
 	"github.com/fast/internal/config"
 	"github.com/fast/internal/routers"
 	"github.com/fast/pkg/logger"
@@ -25,6 +26,10 @@ func main() {
 	flag.Parse()
 	initializeConfiguration()
 	initializeLogger()
+
+	accessor.InitializeDatabase()
+
+	defer accessor.CloseDatabase()
 
 	router := routers.NewRouter()
 

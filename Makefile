@@ -25,6 +25,13 @@ dep:
 run:
 	go run cmd/main.go
 
+
+.PHONY: build
+# build System for linux amd64 binary
+build:
+	@echo "building 'System', linux binary file will output to 'cmd/System'"
+	@cd cmd && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o fastapi
+
 .PHONY: clean
 # clean binary file, cover.out, template file
 clean:
