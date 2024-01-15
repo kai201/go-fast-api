@@ -3,14 +3,12 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
-	"time"
 
 	"github.com/fast/internal/accessor"
 	"github.com/fast/internal/config"
@@ -26,40 +24,47 @@ func main() {
 	flag.Parse()
 	initializeConfiguration()
 	initializeLogger()
-
 	accessor.InitializeDatabase()
-
 	defer accessor.CloseDatabase()
+	initializeApplication()
+}
+
+func shutdown(sigs chan os.Signal, server *http.Server) {
+	sig := <-sigs
+	logger.Infof("Signal %s received, shutting down server...", sig)
+	ctx := context.Background()
+
+	// Shutdown http server
+	err := server.Shutdown(ctx)
+
+	if err != nil {
+		logger.Errorf("Failed to shutdown server: %s", err)
+	}
+	close(sigs)
+}
+
+func initializeApplication() {
 
 	router := routers.NewRouter()
 
 	conf := config.Instance
 	address := net.JoinHostPort(conf.HTTP.Host, strconv.Itoa(conf.HTTP.Port))
-	server := http.Server{Addr: address, Handler: router}
-
-	logger.Infof("Http Server Start Address http://%s", address) //nolint
-	go func() {
-		err := server.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
-			logger.Errorf("api run failed %s %s %s", err.Error(), "address", address) //nolint
-			os.Exit(1)
-		}
-	}()
+	server := &http.Server{Addr: address, Handler: router}
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-	<-sigs
 
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
+	go shutdown(sigs, server)
 
-	// graceful shutdown operation.
-	if err := server.Shutdown(ctx); err != nil {
-		logger.Errorf("failed to api-server shutdown %s", err.Error())
-		fmt.Println(err.Error())
+	defer func() {
+		<-sigs
+	}()
+
+	err := server.ListenAndServe()
+	if err != nil && err != http.ErrServerClosed {
+		logger.Errorf("api run failed %s %s %s", err.Error(), "address", address) //nolint
 	}
 }
-
 func initializeConfiguration() {
 	err := config.Init(configFile)
 	if err != nil {

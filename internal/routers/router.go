@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/fast/internal/config"
-	"github.com/fast/pkg/gin/metrics"
-	"github.com/fast/pkg/gin/middleware"
-	"github.com/fast/pkg/gin/validator"
+	"github.com/fast/pkg/ginx/metrics"
+	"github.com/fast/pkg/ginx/middleware"
+	"github.com/fast/pkg/ginx/validator"
 	"github.com/fast/pkg/jwt"
 	"github.com/fast/pkg/logger"
 	"github.com/gin-gonic/gin"
@@ -42,7 +42,7 @@ func NewRouter() *gin.Engine {
 	// metrics middleware
 	if config.Instance.Server.EnableMetrics {
 		r.Use(metrics.Metrics(r,
-			//metrics.WithMetricsPath("/metrics"),                // default is /metrics
+			metrics.WithMetricsPath("/metrics"),                // default is /metrics
 			metrics.WithIgnoreStatusCodes(http.StatusNotFound), // ignore 404 status codes
 		))
 	}
@@ -54,23 +54,10 @@ func NewRouter() *gin.Engine {
 	// validator
 	binding.Validator = validator.Init()
 
-	r.GET("/ping", Ping)
-
 	rg := r.Group("api")
 
 	for _, fn := range routerFns {
 		fn(rg)
 	}
 	return r
-}
-
-// Ping ping
-// @Summary ping
-// @Description ping
-// @Tags system
-// @Accept  json
-// @Produce  json
-// @Router /ping [get]
-func Ping(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
 }
