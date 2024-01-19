@@ -7,6 +7,7 @@ require (
 	github.com/felixge/fgprof v0.9.3
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/gin-contrib/cors v1.5.0
+	github.com/gin-contrib/pprof v1.4.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/validator/v10 v10.15.5
 	github.com/go-redis/redis/extra/redisotel v0.3.0

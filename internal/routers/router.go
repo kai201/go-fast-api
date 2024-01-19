@@ -9,6 +9,7 @@ import (
 	"github.com/fast/pkg/ginx/validator"
 	"github.com/fast/pkg/jwt"
 	"github.com/fast/pkg/logger"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 )
@@ -17,6 +18,7 @@ var routerFns []func(r *gin.RouterGroup)
 
 // NewRouter create a new router
 func NewRouter() *gin.Engine {
+	gin.SetMode(gin.DebugMode)
 	r := gin.New()
 
 	r.Use(gin.Recovery())
@@ -32,6 +34,7 @@ func NewRouter() *gin.Engine {
 		middleware.WithIgnoreRoutes("/metrics"), // ignore path
 	))
 
+	pprof.Register(r)
 	// init jwt middleware
 	jwt.Init(
 	//jwt.WithExpire(time.Hour*24),
@@ -54,7 +57,7 @@ func NewRouter() *gin.Engine {
 	// validator
 	binding.Validator = validator.Init()
 
-	rg := r.Group("api")
+	rg := &r.RouterGroup
 
 	for _, fn := range routerFns {
 		fn(rg)

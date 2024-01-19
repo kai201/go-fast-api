@@ -8,12 +8,13 @@ import (
 
 func init() {
 	routerFns = append(routerFns, func(group *gin.RouterGroup) {
-		useSysRouter(group)
+		g := group.Group("api")
+
+		useSysRouter(g)
 	})
 }
 
 func useSysRouter(group *gin.RouterGroup) {
-
 	group.GET("/list", List)
 
 }

@@ -39,7 +39,7 @@ logger:
 # mysql settings
 mysql:
   # dsn format, <user>:<pass>@(127.0.0.1:3306)/<db>?[k=v& ......]
-  dsn: "root:123456@(192.168.3.37:3306)/account?parseTime=true&loc=Local&charset=utf8,utf8mb4"
+  dsn: "root:123456@(10.0.6.12:3306)/cms?parseTime=true&loc=Local&charset=utf8,utf8mb4"
 
 
 # redis settings

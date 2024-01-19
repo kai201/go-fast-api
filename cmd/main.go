@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -27,6 +28,7 @@ func main() {
 	accessor.InitializeDatabase()
 	defer accessor.CloseDatabase()
 	initializeApplication()
+	initializeRPCServer()
 }
 
 func shutdown(sigs chan os.Signal, server *http.Server) {
@@ -52,7 +54,8 @@ func initializeApplication() {
 	server := &http.Server{Addr: address, Handler: router}
 
 	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	// signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	signal.Notify(sigs, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT)
 
 	go shutdown(sigs, server)
 
@@ -65,6 +68,11 @@ func initializeApplication() {
 		logger.Errorf("api run failed %s %s %s", err.Error(), "address", address) //nolint
 	}
 }
+
+func initializeRPCServer() {
+	fmt.Printf("Rpc Test....")
+}
+
 func initializeConfiguration() {
 	err := config.Init(configFile)
 	if err != nil {
